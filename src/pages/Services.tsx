@@ -13,13 +13,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Search, Scissors, Clock, DollarSign, Edit, Trash2 } from 'lucide-react';
 
@@ -28,14 +21,9 @@ interface Service {
   name: string;
   price: number;
   duration_minutes: number;
-  category: string | null;
   is_active: boolean;
 }
 
-interface Specialty {
-  id: string;
-  name: string;
-}
 
 export default function Services() {
   const { profile, userRole } = useAuth();
@@ -46,12 +34,10 @@ export default function Services() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
   
-  const [specialties, setSpecialties] = useState<Specialty[]>([]);
   const [formData, setFormData] = useState({
     name: '',
     price: '',
     duration_minutes: '30',
-    category: '', // We keep the column name 'category' in DB but label it 'Especialidade'
     is_active: true
   });
 
@@ -60,22 +46,10 @@ export default function Services() {
   useEffect(() => {
     if (profile?.salon_id) {
       fetchServices();
-      fetchSpecialties();
     } else if (profile !== null) {
       setLoading(false);
     }
   }, [profile]);
-
-  const fetchSpecialties = async () => {
-    if (!profile?.salon_id) return;
-    const { data, error } = await supabase
-      .from('specialties')
-      .select('id, name')
-      .eq('salon_id', profile.salon_id)
-      .eq('is_active', true)
-      .order('name');
-    if (!error && data) setSpecialties(data);
-  };
 
   const fetchServices = async () => {
     if (!profile?.salon_id) return;
@@ -84,7 +58,6 @@ export default function Services() {
       .from('services')
       .select('*')
       .eq('salon_id', profile.salon_id)
-      .order('category', { ascending: true })
       .order('name');
 
     if (error) {
@@ -104,7 +77,6 @@ export default function Services() {
       name: formData.name,
       price: parseFloat(formData.price) || 0,
       duration_minutes: parseInt(formData.duration_minutes) || 30,
-      category: formData.category || null,
       is_active: formData.is_active
     };
 
@@ -160,7 +132,6 @@ export default function Services() {
       name: service.name,
       price: service.price.toString(),
       duration_minutes: service.duration_minutes.toString(),
-      category: service.category || '',
       is_active: service.is_active
     });
     setDialogOpen(true);
@@ -168,12 +139,11 @@ export default function Services() {
 
   const resetForm = () => {
     setEditingService(null);
-    setFormData({ name: '', price: '', duration_minutes: '30', category: '', is_active: true });
+    setFormData({ name: '', price: '', duration_minutes: '30', is_active: true });
   };
 
   const filteredServices = services.filter(service =>
-    service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    service.category?.toLowerCase().includes(searchTerm.toLowerCase())
+    service.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const formatPrice = (price: number) => {
@@ -245,22 +215,6 @@ export default function Services() {
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="category">Especialidade</Label>
-                  <Select
-                    value={formData.category}
-                    onValueChange={(value) => setFormData({ ...formData, category: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione uma especialidade" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {specialties.map((spec) => (
-                        <SelectItem key={spec.id} value={spec.name}>{spec.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
                 <div className="flex items-center justify-between">
                   <Label htmlFor="is_active">Serviço Ativo</Label>
                   <Switch
@@ -311,11 +265,6 @@ export default function Services() {
                     </div>
                     <div>
                       <h3 className="font-semibold">{service.name}</h3>
-                      {service.category && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                          {service.category}
-                        </span>
-                      )}
                     </div>
                   </div>
                   {canManage && (

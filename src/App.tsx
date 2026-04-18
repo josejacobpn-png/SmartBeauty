@@ -9,7 +9,7 @@ import Auth from "@/pages/Auth";
 import Dashboard from "@/pages/Dashboard";
 import Clients from "@/pages/Clients";
 import Services from "@/pages/Services";
-import Categories from "@/pages/Categories";
+// import Categories from "@/pages/Categories";
 import Professionals from "@/pages/Professionals";
 import Specialties from "@/pages/Specialties";
 import Agenda from "@/pages/Agenda";
@@ -62,6 +62,7 @@ function AppRoutes() {
       <Route path="/clientes" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
       <Route path="/servicos" element={<ProtectedRoute><Services /></ProtectedRoute>} />
       <Route path="/profissionais" element={<ProtectedRoute><Professionals /></ProtectedRoute>} />
+      {/* <Route path="/categorias" element={<ProtectedRoute><Categories /></ProtectedRoute>} /> */}
       <Route path="/especialidades" element={<ProtectedRoute><Specialties /></ProtectedRoute>} />
       <Route path="/agenda" element={<ProtectedRoute><Agenda /></ProtectedRoute>} />
       <Route path="/pagamentos" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
