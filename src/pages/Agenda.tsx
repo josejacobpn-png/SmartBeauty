@@ -96,6 +96,7 @@ export default function Agenda() {
           professionals (id, name)
         `)
         .eq('salon_id', profile.salon_id)
+        .neq('payment_status', 'paid')
         .gte('start_time', start)
         .lte('start_time', end)
         .order('start_time'),
