@@ -81,6 +81,7 @@ export default function Dashboard() {
           .select('id', { count: 'exact' })
           .eq('salon_id', profile.salon_id)
           .eq('is_walk_in', false)
+          .neq('payment_status', 'paid')
           .gte('start_time', startOfDay)
           .lte('start_time', endOfDay),
         supabase
@@ -111,6 +112,7 @@ export default function Dashboard() {
             professionals (name)
           `)
           .eq('salon_id', profile.salon_id)
+          .neq('payment_status', 'paid')
           .gte('start_time', new Date().toISOString())
           .order('start_time', { ascending: true })
           .limit(5),
