@@ -328,8 +328,9 @@ export default function Dashboard() {
                     className="flex items-center justify-between p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center text-primary-foreground font-bold">
-                        {format(new Date(appointment.start_time), 'HH:mm')}
+                      <div className="w-16 h-12 gradient-primary rounded-xl flex flex-col items-center justify-center text-primary-foreground px-1">
+                        <span className="text-[10px] leading-tight opacity-90">{format(new Date(appointment.start_time), 'dd/MM')}</span>
+                        <span className="font-bold leading-none">{format(new Date(appointment.start_time), 'HH:mm')}</span>
                       </div>
                       <div>
                         <p className="font-medium">{appointment.clients?.name || 'Cliente'}</p>
