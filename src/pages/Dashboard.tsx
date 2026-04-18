@@ -8,7 +8,7 @@ import { ptBR } from 'date-fns/locale';
 
 interface DashboardStats {
   todayAppointments: number;
-  todayWalkIns: number;
+  currentlyInService: number;
   totalClients: number;
   todayCompleted: number;
   todayRevenue: number;
@@ -35,7 +35,7 @@ export default function Dashboard() {
   const { profile } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     todayAppointments: 0,
-    todayWalkIns: 0,
+    currentlyInService: 0,
     totalClients: 0,
     todayCompleted: 0,
     todayRevenue: 0,
@@ -87,9 +87,7 @@ export default function Dashboard() {
           .from('appointments')
           .select('id', { count: 'exact' })
           .eq('salon_id', profile.salon_id)
-          .eq('is_walk_in', true)
-          .gte('start_time', startOfDay)
-          .lte('start_time', endOfDay),
+          .eq('status', 'in_progress'),
         supabase
           .from('clients')
           .select('id', { count: 'exact' })
@@ -147,7 +145,7 @@ export default function Dashboard() {
 
       setStats({
         todayAppointments: appointmentsRes.count || 0,
-        todayWalkIns: walkInsRes.count || 0,
+        currentlyInService: walkInsRes.count || 0,
         totalClients: clientsRes.count || 0,
         todayCompleted: completedRes.count || 0,
         todayRevenue: totalRevenue,
@@ -177,8 +175,8 @@ export default function Dashboard() {
       gradient: 'gradient-primary'
     },
     {
-      title: 'Em-Atendimento Hoje',
-      value: stats.todayWalkIns,
+      title: 'Em-Atendimento Agora',
+      value: stats.currentlyInService,
       icon: Zap,
       gradient: 'bg-info'
     },
