@@ -145,9 +145,21 @@ export default function Agenda() {
   };
 
   const updateStatus = async (id: string, status: string) => {
+    const updateData: any = { status };
+    
+    // If starting or completing, update times to now to reflect actual service time
+    if (status === 'in_progress' || status === 'completed') {
+      const appointment = appointments.find(a => a.id === id);
+      if (appointment && appointment.services) {
+        const now = new Date();
+        updateData.start_time = now.toISOString();
+        updateData.end_time = new Date(now.getTime() + appointment.services.duration_minutes * 60000).toISOString();
+      }
+    }
+
     const { error } = await supabase
       .from('appointments')
-      .update({ status })
+      .update(updateData)
       .eq('id', id);
 
     if (error) {

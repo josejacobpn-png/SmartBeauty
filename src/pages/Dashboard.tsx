@@ -98,8 +98,8 @@ export default function Dashboard() {
           .select('id', { count: 'exact' })
           .eq('salon_id', profile.salon_id)
           .eq('status', 'completed')
-          .gte('start_time', startOfDay)
-          .lte('start_time', endOfDay),
+          .gte('updated_at', startOfDay)
+          .lte('updated_at', endOfDay),
         supabase
           .from('appointments')
           .select(`
