@@ -102,7 +102,7 @@ export default function Auth() {
                 <Scissors className="w-6 h-6 text-white" />
               </div>
               <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
-                Salão<span className="text-primary">Fácil</span>
+                Smart<span className="text-primary">Beauty</span>
               </h1>
             </div>
             <CardTitle className="text-xl font-bold">Boas-vindas</CardTitle>
