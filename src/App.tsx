@@ -14,6 +14,7 @@ import Professionals from "@/pages/Professionals";
 import Specialties from "@/pages/Specialties";
 import Agenda from "@/pages/Agenda";
 import Payments from "@/pages/Payments";
+import RegisterSalon from "@/pages/RegisterSalon";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -66,6 +67,7 @@ function AppRoutes() {
       <Route path="/especialidades" element={<ProtectedRoute><Specialties /></ProtectedRoute>} />
       <Route path="/agenda" element={<ProtectedRoute><Agenda /></ProtectedRoute>} />
       <Route path="/pagamentos" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
+      <Route path="/register-salon" element={<ProtectedRoute><RegisterSalon /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

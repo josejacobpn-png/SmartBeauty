@@ -22,7 +22,7 @@ import {
   ChevronRight,
   Sparkles,
   DollarSign,
-  FolderOpen
+  Store
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -146,6 +146,23 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 </Link>
               );
             })}
+            
+            {profile?.user_id && user?.email === 'smartbeautyg2@gmail.com' && (
+              <Link
+                to="/register-salon"
+                onClick={() => setSidebarOpen(false)}
+                className={cn(
+                  "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200",
+                  location.pathname === '/register-salon'
+                    ? "gradient-primary text-primary-foreground shadow-lg"
+                    : "hover:bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-accent-foreground"
+                )}
+              >
+                <Store className="w-5 h-5" />
+                <span className="font-medium">Novo Salão</span>
+                {location.pathname === '/register-salon' && <ChevronRight className="w-4 h-4 ml-auto" />}
+              </Link>
+            )}
           </nav>
 
           {/* User Section */}
