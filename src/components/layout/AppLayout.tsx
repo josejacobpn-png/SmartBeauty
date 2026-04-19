@@ -41,7 +41,7 @@ const menuItems = [
 ];
 
 export default function AppLayout({ children }: AppLayoutProps) {
-  const { profile, signOut } = useAuth();
+  const { profile, signOut, user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
