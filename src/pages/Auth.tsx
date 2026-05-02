@@ -1,126 +1,160 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
-import { Scissors, Sparkles, Mail, Lock, User, Building2, ChevronRight } from 'lucide-react';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
+import { z } from "zod";
+
+const loginSchema = z.object({
+  email: z.string().email("Email inválido"),
+  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
+});
 
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const [loginData, setLoginData] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  const { signIn } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
     setIsLoading(true);
 
-    const { error } = await signIn(loginEmail, loginPassword);
-    
-    if (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Algo deu errado',
-        description: error.message === 'Invalid login credentials' 
-          ? 'E-mail ou senha incorretos. Verifique seus dados.' 
-          : error.message
-      });
-    } else {
+    try {
+      const validatedData = loginSchema.parse(loginData);
+
+      const { error } = await signIn(validatedData.email, validatedData.password);
+
+      if (error) {
+        if (error.message.includes("Invalid login credentials")) {
+          toast({
+            variant: "destructive",
+            title: "Algo deu errado",
+            description: "Email ou senha incorretos",
+          });
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Algo deu errado",
+            description: error.message,
+          });
+        }
+        return;
+      }
+
       toast({ 
-        title: 'Que bom ver você de volta!', 
-        description: 'Estamos carregando suas informações.' 
+        title: "Que bom ver você de volta!", 
+        description: "Estamos carregando suas informações.",
       });
-      navigate('/');
+      navigate("/");
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        error.issues.forEach((issue) => {
+          if (issue.path[0]) {
+            fieldErrors[issue.path[0] as string] = issue.message;
+          }
+        });
+        setErrors(fieldErrors);
+      }
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[#F8F9FC] relative overflow-hidden font-sans">
-      {/* Decorative background elements */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 blur-[120px] rounded-full animate-pulse" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/10 blur-[120px] rounded-full animate-pulse" />
-      
-      <div className="w-full max-w-md relative z-10 transition-all duration-500 animate-in fade-in zoom-in duration-700">
-        
-        {/* Auth Card */}
-        <Card className="w-full glass border-white/40 shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden">
-          <div className="h-2 gradient-primary w-full" />
-          
-          <CardHeader className="text-center pt-8">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="w-12 h-12 gradient-primary rounded-2xl flex items-center justify-center shadow-[0_8px_30px_rgb(222,74,181,0.3)] transition-transform hover:rotate-12">
-                <Scissors className="w-6 h-6 text-white" />
-              </div>
-              <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
-                Smart<span className="text-primary">Beauty</span>
-              </h1>
-            </div>
-            <CardTitle className="text-xl font-bold">Boas-vindas</CardTitle>
-            <CardDescription>Gerencie seu salão de forma simples e profissional</CardDescription>
-          </CardHeader>
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+      <div className="mb-8 flex flex-col items-center text-center">
+        <img 
+          src="/favicon.svg" 
+          alt="Ícone Sistema" 
+          className="h-24 w-auto mb-4 object-contain"
+        />
+        <p className="text-primary font-bold uppercase tracking-widest text-xs opacity-90">
+          SMARTBEAUTY - SISTEMA PARA SALÕES
+        </p>
+      </div>
 
-          <CardContent className="pb-8">
-            <div className="space-y-5 animate-in fade-in duration-500">
-              <form onSubmit={handleLogin} className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="login-email">E-mail</Label>
-                  <div className="relative group">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                    <Input
-                      id="login-email"
-                      type="email"
-                      placeholder="exemplo@email.com"
-                      className="pl-10 bg-white/50 border-white/60 focus:bg-white transition-all rounded-xl h-11"
-                      value={loginEmail}
-                      onChange={(e) => setLoginEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="login-password">Senha</Label>
-                    <button type="button" className="text-xs text-primary hover:underline font-medium">Esqueceu a senha?</button>
-                  </div>
-                  <div className="relative group">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                    <Input
-                      id="login-password"
-                      type="password"
-                      placeholder="••••••••"
-                      className="pl-10 bg-white/50 border-white/60 focus:bg-white transition-all rounded-xl h-11"
-                      value={loginPassword}
-                      onChange={(e) => setLoginPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-                <Button type="submit" className="w-full gradient-primary text-white h-11 rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all" disabled={isLoading}>
-                  {isLoading ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span>Entrando...</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <span>Entrar no Sistema</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </div>
-                  )}
-                </Button>
-              </form>
+      <Card className="w-full max-w-md border-t-4 border-t-primary shadow-2xl">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-2xl">Acesso ao Sistema</CardTitle>
+          <CardDescription>
+            Entre com suas credenciais para gerenciar sua empresa.
+          </CardDescription>
+        </CardHeader>
+        <form onSubmit={handleLogin}>
+          <CardContent className="space-y-4">
+            <div className="space-y-2 text-left">
+              <Label htmlFor="login-email" className="text-sm font-medium leading-none text-slate-600">
+                Email
+              </Label>
+              <Input
+                id="login-email"
+                type="email"
+                placeholder="Ex: admin@empresa.com.br"
+                value={loginData.email}
+                onChange={(e) =>
+                  setLoginData({ ...loginData, email: e.target.value })
+                }
+                disabled={isLoading}
+                className="h-11 focus:ring-primary"
+              />
+              {errors.email && (
+                <p className="text-sm text-destructive">{errors.email}</p>
+              )}
+            </div>
+
+            <div className="space-y-2 text-left">
+              <Label htmlFor="login-password" className="text-sm font-medium leading-none text-slate-600">
+                Senha
+              </Label>
+              <Input
+                id="login-password"
+                type="password"
+                placeholder="••••••••"
+                value={loginData.password}
+                onChange={(e) =>
+                  setLoginData({ ...loginData, password: e.target.value })
+                }
+                disabled={isLoading}
+                className="h-11 focus:ring-primary"
+              />
+              {errors.password && (
+                <p className="text-sm text-destructive">{errors.password}</p>
+              )}
             </div>
           </CardContent>
+          <CardFooter className="flex flex-col space-y-4 pt-2">
+            <Button type="submit" className="w-full h-11 font-bold" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Autenticando...
+                </>
+              ) : (
+                "Entrar no Sistema"
+              )}
+            </Button>
+          </CardFooter>
+        </form>
       </Card>
+      
+      <div className="mt-8 flex flex-col items-center">
+        <a href="https://www.g2autodev.com.br" target="_blank" rel="noopener noreferrer">
+          <img 
+            src="/g2-logo.png" 
+            alt="G2 Sistemas" 
+            className="max-w-[200px] h-auto object-contain opacity-60 transition-opacity hover:opacity-100 duration-300"
+          />
+        </a>
       </div>
     </div>
   );

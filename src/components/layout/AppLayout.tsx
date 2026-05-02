@@ -22,9 +22,11 @@ import {
   ChevronRight,
   Sparkles,
   DollarSign,
-  Store
+  Store,
+  Key
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ChangePasswordDialog } from '@/components/ChangePasswordDialog';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -45,6 +47,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -82,6 +85,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setIsPasswordDialogOpen(true)}>
+              <Key className="w-4 h-4 mr-2" />
+              Mudar Senha
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={handleSignOut}>
               <LogOut className="w-4 h-4 mr-2" />
               Sair
@@ -177,7 +184,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 <p className="font-medium text-sm truncate">{profile?.full_name || 'Usuário'}</p>
                 <p className="text-xs text-muted-foreground">Admin</p>
               </div>
-              <Button variant="ghost" size="icon" onClick={handleSignOut} className="text-muted-foreground hover:text-destructive">
+              <Button variant="ghost" size="icon" onClick={() => setIsPasswordDialogOpen(true)} className="text-muted-foreground hover:text-primary" title="Mudar Senha">
+                <Key className="w-4 h-4" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={handleSignOut} className="text-muted-foreground hover:text-destructive" title="Sair">
                 <LogOut className="w-4 h-4" />
               </Button>
             </div>
@@ -191,6 +201,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
           {children}
         </div>
       </main>
+
+      <ChangePasswordDialog 
+        open={isPasswordDialogOpen} 
+        onOpenChange={setIsPasswordDialogOpen} 
+      />
     </div>
   );
 }
